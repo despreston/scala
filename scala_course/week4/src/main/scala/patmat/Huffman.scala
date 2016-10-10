@@ -108,6 +108,7 @@ object Huffman {
    * unchanged.
    */
     def combine(trees: List[CodeTree]): List[CodeTree] = trees match {
+      case Nil => Nil
       case x :: Nil => trees
       case x :: y :: xs => (Fork(x,y,chars(x) ++ chars(y), weight(x) + weight(y)) :: xs)
         .sortWith((x:CodeTree, y:CodeTree) => weight(x) < weight(y))
@@ -219,7 +220,7 @@ object Huffman {
    * This function returns the bit sequence that represents the character `char` in
    * the code table `table`.
    */
-    def codeBits(table: CodeTable)(char: Char): List[Bit] = ???
+    def codeBits(table: CodeTable)(char: Char): List[Bit] = table.toMap.get(char).get
   
   /**
    * Given a code tree, create a code table which contains, for every character in the
