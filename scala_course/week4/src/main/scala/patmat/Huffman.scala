@@ -113,7 +113,7 @@ object Huffman {
       case x :: y :: xs => (Fork(x,y,chars(x) ++ chars(y), weight(x) + weight(y)) :: xs)
         .sortWith((x:CodeTree, y:CodeTree) => weight(x) < weight(y))
     }
-  
+
   /**
    * This function will be called in the following way:
    *
@@ -230,7 +230,9 @@ object Huffman {
    * a valid code tree that can be represented as a code table. Using the code tables of the
    * sub-trees, think of how to build the code table for the entire tree.
    */
-    def convert(tree: CodeTree): CodeTable = ???
+    def convert(tree: CodeTree): CodeTable = tree match {
+      case Leaf(c,
+    }
   
   /**
    * This function takes two code tables and merges them into one. Depending on how you

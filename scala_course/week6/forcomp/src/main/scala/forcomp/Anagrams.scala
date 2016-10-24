@@ -1,4 +1,5 @@
 package forcomp
+import scala.collection.immutable.SortedMap
 
 
 object Anagrams {
@@ -81,7 +82,10 @@ object Anagrams {
    *  Note that the order of the occurrence list subsets does not matter -- the subsets
    *  in the example above could have been displayed in some other order.
    */
-  def combinations(occurrences: Occurrences): List[Occurrences] = occurrences.toSet.subsets.map(_.toList).toList
+  def combinations(occurrences: Occurrences): List[Occurrences] =
+  (occurrences foldRight List[Occurrences](Nil)) {
+    case ((x, y), acc) => acc ++ (for {comb <- acc; n <- 1 to y} yield (x, n) :: comb)
+  }
 
   /** Subtracts occurrence list `y` from occurrence list `x`.
    *
@@ -93,7 +97,13 @@ object Anagrams {
    *  Note: the resulting value is an occurrence - meaning it is sorted
    *  and has no zero-entries.
    */
-  def subtract(x: Occurrences, y: Occurrences): Occurrences = ???
+  def subtract(x: Occurrences, y: Occurrences): Occurrences = {
+    (y foldLeft SortedMap[Char,Int]() ++ x){ case (map, (ch, tm)) => {
+      val newTm = map(ch) - tm
+      if (newTm != 0) map updated (ch, newTm)
+      else map - ch
+    } }.toList
+  }
 
   /** Returns a list of all anagram sentences of the given sentence.
    *
@@ -135,5 +145,17 @@ object Anagrams {
    *
    *  Note: There is only one anagram of an empty sentence.
    */
-  def sentenceAnagrams(sentence: Sentence): List[Sentence] = ???
+  def sentenceAnagrams(sentence: Sentence): List[Sentence] = {
+    def iter(occurrences: Occurrences): List[Sentence] = {
+      if (occurrences.isEmpty) List(Nil)
+      else for {
+        combination <- combinations( occurrences )
+        word <- dictionaryByOccurrences getOrElse (combination, Nil)
+        sentence <- iter( subtract(occurrences,wordOccurrences(word)) )
+        if combination.nonEmpty
+      } yield word :: sentence
+    }
+
+    iter( sentenceOccurrences(sentence) )
+  }
 }
